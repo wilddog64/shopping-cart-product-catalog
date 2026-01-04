@@ -1,2 +1,0 @@
-[console_scripts]
-product-catalog = product_catalog.main:main
