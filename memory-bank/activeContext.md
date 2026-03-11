@@ -37,6 +37,26 @@ This library provides higher-level abstractions over pika with Vault integration
 ### No GitHub Actions Workflows Visible
 Unlike the Payment Service which has explicit workflow files, no `.github/workflows/` files are visible. The Makefile has `ci-test` and `ci-build` targets that could be used by any CI system.
 
+## CI Blocker — OPEN (2026-03-11)
+
+**Failing since:** 2026-03-09
+**Failing job:** `Publish / build-push` → Trivy scanner installation
+
+**Error:** Same as shopping-cart-basket (identical shared reusable workflow at same pinned commit).
+
+```
+aquasecurity/trivy info found version: 0.60.0 for v0.60.0/Linux/64bit
+##[error]Process completed with exit code 1.
+```
+
+**Root cause:** Custom Trivy install script in `shopping-cart-infra` reusable workflow fails during binary download.
+
+**Fix (shared with shopping-cart-basket — fix once in infra repo):**
+Replace custom script with `aquasecurity/trivy-action@0.30.0` in `shopping-cart-infra/.github/workflows/build-push-deploy.yml`;
+then update the pinned commit hash in this repo's caller workflow.
+
+**Priority:** P1 — assigned to v0.8.0 milestone. See `k3d-manager/docs/issues/2026-03-11-shopping-cart-ci-failures.md`.
+
 ## Integration Points
 
 - **Product data consumer**: Basket Service clients read product details from here when building carts (though the Basket Service does not call this API — the frontend client does)
