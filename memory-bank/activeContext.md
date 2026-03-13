@@ -1,4 +1,17 @@
-# Active Context: Product Catalog Service
+## CI Status (as of 2026-03-13)
+
+**Branch:** `fix/ci-stabilization` — PR #1 open
+
+| Job | Status |
+|---|---|
+| Lint, Test & Build | ✅ pass |
+
+**CI is green. PR #1 ready to merge.**
+
+Fix applied: added `apt-get upgrade -y` immediately after `FROM python:3.11-slim`
+in Dockerfile to resolve Trivy HIGH/CRITICAL CVEs.
+
+---# Active Context: Product Catalog Service
 
 ## Current Status
 
