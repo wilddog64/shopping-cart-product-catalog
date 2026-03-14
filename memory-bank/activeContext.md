@@ -1,15 +1,4 @@
-## CI Status (2026-03-14)
-
-**Branch:** `feature/p4-linter` — PR [#2](https://github.com/wilddog64/shopping-cart-product-catalog/pull/2)
-
-| Job | Status |
-|---|---|
-| Lint & Type Check (ruff + mypy) | ✅ run `23095114694` on commit `95fd02434ff72fafa63b0e27dcbef143ce9e8a46` (verified) |
-| Lint, Test & Build | ✅ (runs after lint in the same workflow) |
-
-Latest changes: added Ruff/Mypy config + dev deps in `pyproject.toml`, introduced a `lint` job in `.github/workflows/ci.yml`, and fixed Ruff/Mypy findings across auth, messaging, routers, and tests so the new gate is green.
-
----# Active Context: Product Catalog Service
+# Active Context: Product Catalog Service
 
 ## Current Status (2026-03-14)
 
@@ -31,7 +20,7 @@ CI green. PR #1 merged to main. Branch protection active.
 
 ## Active Task
 
-- **P4 linter** — ruff + mypy per `wilddog64/shopping-cart-infra/docs/plans/p4-linter-product-catalog.md`. Branch `feature/p4-linter`, PR #2 open; CI run `23095114694` succeeded on commit `95fd02434ff72fafa63b0e27dcbef143ce9e8a46`.
+- **P4 linter** — ruff + mypy per `wilddog64/shopping-cart-infra/docs/plans/p4-linter-product-catalog.md`. Branch `feature/p4-linter`, PR #2 open; CI run `23095194470` green on HEAD `4a4cca64`. Copilot review requested. Ready to merge.
 
 ## Key Notes
 
