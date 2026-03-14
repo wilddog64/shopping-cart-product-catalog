@@ -180,3 +180,13 @@ curl -u guest:guest http://localhost:15672/api/overview
 - Prefer async where appropriate
 - Log structured data with structlog
 - Never log credentials
+
+## Agent Instructions
+
+Rules that apply to ALL agents (Codex, Claude, Gemini) working in this repo:
+
+1. **CI only** — do NOT run `pytest`, `mypy`, or `ruff` locally without first activating the virtualenv. Use `gh run list` to verify results.
+2. **Memory-bank discipline** — do NOT update `memory-bank/activeContext.md` until `gh run list --repo wilddog64/shopping-cart-product-catalog` shows `completed success`.
+3. **SHA verification** — always verify commit SHA with `gh api repos/wilddog64/shopping-cart-product-catalog/commits/<sha>` before reporting.
+4. **Do NOT merge PRs** — open the PR and stop. The repo owner merges.
+5. **No unsolicited changes** — only touch files listed in the task spec. Flat structure is intentional — do not refactor to services/repositories/models.
