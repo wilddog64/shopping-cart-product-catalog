@@ -4,6 +4,8 @@ FROM python:3.11-slim as builder
 
 WORKDIR /app
 
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
@@ -24,6 +26,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # Stage 2: Runtime stage
 FROM python:3.11-slim
+
+# Upgrade system packages to pick up security patches
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
 RUN groupadd -r appgroup && useradd -r -g appgroup -u 1000 appuser
