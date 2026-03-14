@@ -4,9 +4,8 @@ These events match the schemas defined in shopping-cart-infra/docs/message-schem
 """
 
 from datetime import datetime
-from decimal import Decimal
-from typing import Any, Generic, Optional, TypeVar
-from uuid import UUID, uuid4
+from typing import Generic, TypeVar
+from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
@@ -90,7 +89,7 @@ class InventoryUpdatedEvent:
         previous_quantity: int,
         new_quantity: int,
         reason: str,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> EventEnvelope[InventoryUpdatedData]:
         """Create an inventory.updated event envelope."""
         data = InventoryUpdatedData(
@@ -124,7 +123,7 @@ class InventoryLowEvent:
         current_quantity: int,
         product_name: str,
         threshold: int = DEFAULT_THRESHOLD,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> EventEnvelope[InventoryLowData]:
         """Create an inventory.low event envelope."""
         data = InventoryLowData(
@@ -156,7 +155,7 @@ class InventoryReservedEvent:
         quantity: int,
         order_id: str,
         expires_at: datetime,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> EventEnvelope[InventoryReservedData]:
         """Create an inventory.reserved event envelope."""
         data = InventoryReservedData(

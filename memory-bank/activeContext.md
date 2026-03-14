@@ -1,17 +1,4 @@
-## CI Status (as of 2026-03-13)
-
-**Branch:** `fix/ci-stabilization` — PR #1 open
-
-| Job | Status |
-|---|---|
-| Lint, Test & Build | ✅ pass |
-
-**CI is green. PR #1 ready to merge.**
-
-Fix applied: added `apt-get upgrade -y` immediately after `FROM python:3.11-slim`
-in Dockerfile to resolve Trivy HIGH/CRITICAL CVEs.
-
----# Active Context: Product Catalog Service
+# Active Context: Product Catalog Service
 
 ## Current Status (2026-03-14)
 
@@ -33,7 +20,7 @@ CI green. PR #1 merged to main. Branch protection active.
 
 ## Active Task
 
-- **P4 linter** — ruff + mypy. Spec: `wilddog64/shopping-cart-infra/docs/plans/p4-linter-product-catalog.md`. Branch: `feature/p4-linter`. Not started — assigned to Codex after basket is merged.
+- **P4 linter** — ruff + mypy per `wilddog64/shopping-cart-infra/docs/plans/p4-linter-product-catalog.md`. Branch `feature/p4-linter`, PR #2 open; CI run `23095194470` green on HEAD `4a4cca64`. Copilot review requested. Ready to merge.
 
 ## Key Notes
 

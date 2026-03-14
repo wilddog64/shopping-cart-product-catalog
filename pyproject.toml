@@ -47,7 +47,7 @@ dev = [
     "black>=24.1.0",
     "isort>=5.13.2",
     "mypy>=1.8.0",
-    "ruff>=0.1.13",
+    "ruff>=0.3.0",
     "testcontainers>=3.7.1",
 ]
 
@@ -67,13 +67,15 @@ line_length = 100
 
 [tool.mypy]
 python_version = "3.11"
-strict = true
 ignore_missing_imports = true
+strict = false
+warn_unused_ignores = true
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+select = ["E", "F", "I", "UP"]
+ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

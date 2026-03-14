@@ -1,8 +1,6 @@
 """SQLAlchemy models for Product Catalog."""
 
 from datetime import datetime
-from decimal import Decimal
-from typing import Optional
 from uuid import uuid4
 
 from sqlalchemy import Boolean, Column, DateTime, Numeric, String, Text

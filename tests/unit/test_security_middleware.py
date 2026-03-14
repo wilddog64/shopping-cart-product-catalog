@@ -5,8 +5,6 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from product_catalog.security import (
-    RateLimitMiddleware,
-    SecurityHeadersMiddleware,
     setup_security,
 )
 
@@ -114,9 +112,10 @@ class TestRateLimiting:
             return {"message": "OK"}
 
         # Manually add middleware with low limits
-        from product_catalog.security import RateLimiter, get_client_ip
-        from starlette.middleware.base import BaseHTTPMiddleware
         from fastapi.responses import JSONResponse
+        from starlette.middleware.base import BaseHTTPMiddleware
+
+        from product_catalog.security import RateLimiter, get_client_ip
 
         class StrictRateLimitMiddleware(BaseHTTPMiddleware):
             def __init__(self, app):
@@ -162,9 +161,10 @@ class TestRateLimiting:
         def test_endpoint():
             return {"message": "OK"}
 
-        from product_catalog.security import RateLimiter, get_client_ip
-        from starlette.middleware.base import BaseHTTPMiddleware
         from fastapi.responses import JSONResponse
+        from starlette.middleware.base import BaseHTTPMiddleware
+
+        from product_catalog.security import RateLimiter, get_client_ip
 
         class StrictRateLimitMiddleware(BaseHTTPMiddleware):
             def __init__(self, app):

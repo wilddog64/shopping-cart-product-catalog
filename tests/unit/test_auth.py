@@ -1,7 +1,7 @@
 """Tests for OAuth2/OIDC authentication module."""
 
 import time
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi import HTTPException
@@ -10,9 +10,7 @@ from product_catalog.auth import (
     CurrentUser,
     OIDCAuth,
     TokenPayload,
-    get_current_user,
     require_admin,
-    require_auth,
     require_catalog_admin,
     require_group,
     require_role,
