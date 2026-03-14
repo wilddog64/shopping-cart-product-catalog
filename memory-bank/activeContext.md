@@ -1,15 +1,13 @@
-## CI Status (as of 2026-03-13)
+## CI Status (2026-03-14)
 
-**Branch:** `fix/ci-stabilization` — PR #1 open
+**Branch:** `feature/p4-linter` — PR [#2](https://github.com/wilddog64/shopping-cart-product-catalog/pull/2)
 
 | Job | Status |
 |---|---|
-| Lint, Test & Build | ✅ pass |
+| Lint & Type Check (ruff + mypy) | ✅ run `23095114694` on commit `95fd02434ff72fafa63b0e27dcbef143ce9e8a46` (verified) |
+| Lint, Test & Build | ✅ (runs after lint in the same workflow) |
 
-**CI is green. PR #1 ready to merge.**
-
-Fix applied: added `apt-get upgrade -y` immediately after `FROM python:3.11-slim`
-in Dockerfile to resolve Trivy HIGH/CRITICAL CVEs.
+Latest changes: added Ruff/Mypy config + dev deps in `pyproject.toml`, introduced a `lint` job in `.github/workflows/ci.yml`, and fixed Ruff/Mypy findings across auth, messaging, routers, and tests so the new gate is green.
 
 ---# Active Context: Product Catalog Service
 
@@ -33,7 +31,7 @@ CI green. PR #1 merged to main. Branch protection active.
 
 ## Active Task
 
-- **P4 linter** — ruff + mypy. Spec: `wilddog64/shopping-cart-infra/docs/plans/p4-linter-product-catalog.md`. Branch: `feature/p4-linter`. Not started — assigned to Codex after basket is merged.
+- **P4 linter** — ruff + mypy per `wilddog64/shopping-cart-infra/docs/plans/p4-linter-product-catalog.md`. Branch `feature/p4-linter`, PR #2 open; CI run `23095114694` succeeded on commit `95fd02434ff72fafa63b0e27dcbef143ce9e8a46`.
 
 ## Key Notes
 
