@@ -62,8 +62,8 @@ UQIDAQAB
 def create_test_token(
     sub: str = "test-user-id",
     username: str = "testuser",
-    roles: list[str] = None,
-    groups: list[str] = None,
+    roles: list[str] | None = None,
+    groups: list[str] | None = None,
     expires_in: int = 3600,
 ) -> str:
     """Create a test JWT token."""

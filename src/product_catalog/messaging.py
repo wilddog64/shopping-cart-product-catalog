@@ -42,9 +42,8 @@ class ProductEventPublisher:
             publisher: RabbitMQ publisher instance. If None, publishing is disabled.
         """
         self._publisher = publisher
-        self._enabled = publisher is not None
 
-        if self._enabled:
+        if self._publisher:
             logger.info("product_event_publisher_initialized")
         else:
             logger.warning("product_event_publisher_disabled", reason="no_publisher")
@@ -52,7 +51,7 @@ class ProductEventPublisher:
     @property
     def enabled(self) -> bool:
         """Check if publishing is enabled."""
-        return self._enabled
+        return self._publisher is not None
 
     def publish_inventory_updated(
         self,
@@ -75,7 +74,8 @@ class ProductEventPublisher:
         Returns:
             True if published successfully, False otherwise.
         """
-        if not self._enabled:
+        publisher = self._publisher
+        if not publisher:
             logger.debug("publish_skipped", event="inventory.updated", reason="disabled")
             return False
 
@@ -89,7 +89,7 @@ class ProductEventPublisher:
         )
 
         try:
-            result = self._publisher.publish(
+            result = publisher.publish(
                 exchange=EVENTS_EXCHANGE,
                 routing_key=InventoryUpdatedEvent.TYPE,
                 body=event.model_dump(mode="json", by_alias=True),
@@ -125,6 +125,10 @@ class ProductEventPublisher:
         correlation_id: str,
     ) -> bool:
         """Publish an inventory.low event (internal)."""
+        publisher = self._publisher
+        if not publisher:
+            return False
+
         # Note: We'd need product_name here - in real implementation would fetch it
         event = InventoryLowEvent.create(
             product_id=product_id,
@@ -136,7 +140,7 @@ class ProductEventPublisher:
         )
 
         try:
-            result = self._publisher.publish(
+            result = publisher.publish(
                 exchange=EVENTS_EXCHANGE,
                 routing_key=InventoryLowEvent.TYPE,
                 body=event.model_dump(mode="json", by_alias=True),
