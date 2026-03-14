@@ -1,7 +1,7 @@
 """Integration tests for OAuth2/OIDC authentication with FastAPI."""
 
 import time
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi import Depends, FastAPI
@@ -18,7 +18,6 @@ from product_catalog.auth import (
     require_catalog_admin,
     require_role,
 )
-
 
 # Test RSA keys for JWT signing (for testing only)
 TEST_PRIVATE_KEY = """-----BEGIN RSA PRIVATE KEY-----

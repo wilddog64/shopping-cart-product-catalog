@@ -10,10 +10,9 @@ Provides protection against:
 import html
 import re
 import time
-from collections import defaultdict
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass
 from functools import lru_cache
-from typing import Callable, Optional
 
 import structlog
 from fastapi import FastAPI, Request, Response
@@ -247,35 +246,35 @@ SCRIPT_PATTERN = re.compile(
 SAFE_TEXT_PATTERN = re.compile(r"^[\w\s.,!?@#$%&*()\-_+=\[\]{}|;:'\"/\\]*$", re.UNICODE)
 
 
-def escape_html(text: Optional[str]) -> Optional[str]:
+def escape_html(text: str | None) -> str | None:
     """Escape HTML entities to prevent XSS."""
     if text is None:
         return None
     return html.escape(text)
 
 
-def remove_scripts(text: Optional[str]) -> Optional[str]:
+def remove_scripts(text: str | None) -> str | None:
     """Remove potential script content from input."""
     if text is None:
         return None
     return SCRIPT_PATTERN.sub("", text)
 
 
-def sanitize_input(text: Optional[str]) -> Optional[str]:
+def sanitize_input(text: str | None) -> str | None:
     """Full sanitization: removes scripts and escapes HTML."""
     if text is None:
         return None
     return escape_html(remove_scripts(text))
 
 
-def contains_xss_patterns(text: Optional[str]) -> bool:
+def contains_xss_patterns(text: str | None) -> bool:
     """Check if input contains potential XSS patterns."""
     if text is None:
         return False
     return bool(SCRIPT_PATTERN.search(text))
 
 
-def is_safe_text(text: Optional[str]) -> bool:
+def is_safe_text(text: str | None) -> bool:
     """Validate that input contains only safe characters."""
     if text is None:
         return True

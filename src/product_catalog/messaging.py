@@ -1,6 +1,5 @@
 """RabbitMQ messaging integration for Product Catalog service."""
 
-import os
 from functools import lru_cache
 from typing import Optional
 
@@ -23,7 +22,6 @@ except ImportError:
 
 from .config import get_settings
 from .events import (
-    EventEnvelope,
     InventoryLowEvent,
     InventoryUpdatedEvent,
 )
@@ -63,7 +61,7 @@ class ProductEventPublisher:
         previous_quantity: int,
         new_quantity: int,
         reason: str,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> bool:
         """Publish an inventory.updated event.
 

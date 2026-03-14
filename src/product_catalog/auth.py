@@ -5,11 +5,11 @@ Integrates with Keycloak for SSO authentication.
 
 import logging
 from functools import lru_cache
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any
 
 import httpx
 from fastapi import Depends, HTTPException, Security, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2AuthorizationCodeBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel, Field
 
@@ -29,15 +29,15 @@ class TokenPayload(BaseModel):
     iat: int = Field(..., description="Issued at time")
     iss: str = Field(..., description="Issuer")
     aud: str | list[str] = Field(default="account", description="Audience")
-    preferred_username: Optional[str] = Field(None, description="Username")
-    email: Optional[str] = Field(None, description="User email")
-    email_verified: Optional[bool] = Field(None, description="Email verified")
-    name: Optional[str] = Field(None, description="Full name")
-    given_name: Optional[str] = Field(None, description="First name")
-    family_name: Optional[str] = Field(None, description="Last name")
-    realm_access: Optional[dict[str, Any]] = Field(None, description="Realm roles")
-    resource_access: Optional[dict[str, Any]] = Field(None, description="Resource roles")
-    groups: Optional[list[str]] = Field(None, description="Group memberships")
+    preferred_username: str | None = Field(None, description="Username")
+    email: str | None = Field(None, description="User email")
+    email_verified: bool | None = Field(None, description="Email verified")
+    name: str | None = Field(None, description="Full name")
+    given_name: str | None = Field(None, description="First name")
+    family_name: str | None = Field(None, description="Last name")
+    realm_access: dict[str, Any] | None = Field(None, description="Realm roles")
+    resource_access: dict[str, Any] | None = Field(None, description="Resource roles")
+    groups: list[str] | None = Field(None, description="Group memberships")
 
 
 class CurrentUser(BaseModel):
@@ -45,8 +45,8 @@ class CurrentUser(BaseModel):
 
     id: str = Field(..., description="User ID")
     username: str = Field(..., description="Username")
-    email: Optional[str] = Field(None, description="Email")
-    name: Optional[str] = Field(None, description="Full name")
+    email: str | None = Field(None, description="Email")
+    name: str | None = Field(None, description="Full name")
     roles: list[str] = Field(default_factory=list, description="User roles")
     groups: list[str] = Field(default_factory=list, description="User groups")
 
@@ -82,7 +82,7 @@ class OIDCAuth:
 
     def __init__(self):
         self.settings = get_settings()
-        self._jwks_cache: Optional[dict] = None
+        self._jwks_cache: dict | None = None
 
     @property
     def enabled(self) -> bool:
@@ -190,16 +190,16 @@ class OIDCAuth:
 
 
 # Global auth instance
-@lru_cache()
+@lru_cache
 def get_oidc_auth() -> OIDCAuth:
     """Get the OIDC auth handler."""
     return OIDCAuth()
 
 
 async def get_current_user(
-    credentials: Annotated[Optional[HTTPAuthorizationCredentials], Security(bearer_scheme)],
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Security(bearer_scheme)],
     oidc_auth: Annotated[OIDCAuth, Depends(get_oidc_auth)],
-) -> Optional[CurrentUser]:
+) -> CurrentUser | None:
     """Get the current authenticated user.
 
     Returns None if OAuth2 is disabled or no token provided.
@@ -216,7 +216,7 @@ async def get_current_user(
 
 
 async def require_auth(
-    user: Annotated[Optional[CurrentUser], Depends(get_current_user)],
+    user: Annotated[CurrentUser | None, Depends(get_current_user)],
 ) -> CurrentUser:
     """Require authentication - raises 401 if not authenticated."""
     settings = get_settings()

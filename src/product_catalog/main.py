@@ -1,8 +1,7 @@
 """Main FastAPI application for Product Catalog service."""
 
-import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 import structlog
 from fastapi import FastAPI
@@ -10,7 +9,7 @@ from prometheus_client import make_asgi_app
 
 from .config import get_settings
 from .database import init_db
-from .routers import products, health
+from .routers import health, products
 from .security import setup_security
 
 # Configure structured logging

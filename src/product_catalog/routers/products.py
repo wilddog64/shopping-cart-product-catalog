@@ -1,6 +1,5 @@
 """Product CRUD endpoints."""
 
-from typing import Optional
 from uuid import UUID
 
 import structlog
@@ -26,7 +25,7 @@ logger = structlog.get_logger(__name__)
 def list_products(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
-    category: Optional[str] = None,
+    category: str | None = None,
     active_only: bool = True,
     db: Session = Depends(get_db),
 ) -> PaginatedResponse:
@@ -34,7 +33,7 @@ def list_products(
     query = db.query(Product)
 
     if active_only:
-        query = query.filter(Product.is_active == True)
+        query = query.filter(Product.is_active.is_(True))
 
     if category:
         query = query.filter(Product.category == category)
@@ -130,7 +129,7 @@ def update_inventory(
     inventory_update: InventoryUpdate,
     db: Session = Depends(get_db),
     event_publisher: ProductEventPublisher = Depends(get_event_publisher),
-    x_correlation_id: Optional[str] = Header(None),
+    x_correlation_id: str | None = Header(None),
 ) -> ProductResponse:
     """Update product inventory and publish event."""
     product = db.query(Product).filter(Product.id == product_id).first()
