@@ -7,8 +7,30 @@ on:
     branches: [main]
 
 jobs:
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install lint tools
+        run: pip install ruff mypy
+
+      - name: Run ruff
+        run: ruff check .
+
+      - name: Run mypy
+        run: mypy . --ignore-missing-imports
+
   build:
     name: Lint, Test & Build
+    needs: [lint]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
