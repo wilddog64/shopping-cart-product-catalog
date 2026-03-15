@@ -24,3 +24,8 @@ resources:
 commonLabels:
   app.kubernetes.io/name: product-catalog
   app.kubernetes.io/part-of: shopping-cart
+
+images:
+  - name: shopping-cart-product-catalog
+    newName: ghcr.io/wilddog64/shopping-cart-product-catalog
+    newTag: latest
