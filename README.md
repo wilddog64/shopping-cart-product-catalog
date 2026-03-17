@@ -12,26 +12,7 @@ The Product Catalog Service handles:
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                  Product Catalog Service                     │
-├─────────────────────────────────────────────────────────────┤
-│  REST API           │  Event Publisher    │  Event Consumer │
-│  - GET /products    │  - inventory.updated│  - order.*      │
-│  - POST /products   │  - inventory.low    │                 │
-│  - PATCH /products  │  - inventory.reserved                 │
-│  - POST /inventory  │                     │                 │
-├─────────────────────────────────────────────────────────────┤
-│                     PostgreSQL                               │
-│                     (products)                               │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────┐
-                    │    RabbitMQ     │
-                    │  events exchange │
-                    └─────────────────┘
-```
+See **[Service Architecture](docs/architecture/README.md)** for component diagram, service layers, data model, and security architecture.
 
 ## Events Published
 
@@ -216,6 +197,17 @@ shopping-cart-product-catalog/
 ├── README.md
 └── CLAUDE.md
 ```
+
+## Documentation
+
+### Architecture
+- **[Service Architecture](docs/architecture/README.md)** — component diagram, service layers, data model, and security architecture.
+
+### API Reference
+- **[API Reference](docs/api/README.md)** — endpoint details, payloads, and error codes.
+
+### Troubleshooting
+- **[Troubleshooting Guide](docs/troubleshooting/README.md)** — common issues and debugging tips.
 
 ## Related Repositories
 
