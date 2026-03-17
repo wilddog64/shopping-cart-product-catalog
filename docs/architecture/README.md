@@ -19,9 +19,9 @@ The Product Catalog Service is a FastAPI-based microservice responsible for mana
 
 ```mermaid
 graph TD
-    GW[API Gateway] --> PC
+    GW[API Gateway] --> RT
 
-    subgraph PC[Product Catalog Service]
+    subgraph PCS[Product Catalog Service]
         RT[Routers / FastAPI] --> SVC[Services / Logic]
         SVC --> REPO[Repositories / SQLAlchemy]
         RT --> AUTH[Auth Middleware]
@@ -135,7 +135,12 @@ sequenceDiagram
     JWKS-->>PC: Public keys
     PC->>PC: Validate JWT signature
     PC->>PC: Extract roles from claims
-    PC-->>C: Authorized response
+    PC->>PC: Authorize based on roles
+    alt authorized
+        PC-->>C: 200 response
+    else unauthorized
+        PC-->>C: 403 Forbidden
+    end
 ```
 
 ### Role-Based Access
