@@ -1,17 +1,50 @@
 # Shopping Cart Product Catalog Service
 
-Product catalog microservice for the Shopping Cart platform with RabbitMQ integration for event-driven architecture.
+A Python/FastAPI service that manages product data, inventory adjustments, and publishes RabbitMQ events consumed by other Shopping Cart microservices. It persists catalog data in PostgreSQL and exposes REST APIs for CRUD/search flows.
 
-## Overview
+---
 
-The Product Catalog Service handles:
-- Product CRUD operations
-- Inventory management
-- Event publishing for inventory changes
-- Product search and filtering
+## Quick Start
 
-## Architecture
+### Prerequisites
+- Python 3.11+
+- PostgreSQL 15+
+- RabbitMQ 3.12+
 
+### Install & Run
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev,rabbitmq]"
+
+# Run development server
+uvicorn product_catalog.main:app --reload --host 0.0.0.0 --port 8000
+
+# Optional: start Docker Compose backing services
+docker-compose up -d
+```
+
+### Environment Variables
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `HOST` | 0.0.0.0 | Server host |
+| `PORT` | 8000 | Server port |
+| `DB_HOST` | localhost | PostgreSQL host |
+| `DB_PORT` | 5432 | PostgreSQL port |
+| `DB_NAME` | products | Database name |
+| `DB_USERNAME` | postgres | Database username |
+| `DB_PASSWORD` | postgres | Database password |
+| `RABBITMQ_HOST` | localhost | RabbitMQ host |
+| `RABBITMQ_PORT` | 5672 | RabbitMQ port |
+| `VAULT_ENABLED` | false | Enable Vault integration |
+| `VAULT_ADDR` | http://localhost:8200 | Vault address |
+| `VAULT_ROLE` | product-publisher | Vault role for RabbitMQ |
+
+---
+
+## Usage
+
+### Architecture
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                  Product Catalog Service                     │
@@ -33,130 +66,29 @@ The Product Catalog Service handles:
                     └─────────────────┘
 ```
 
-## Events Published
-
+### Event Publishing
 | Event | Routing Key | Description |
 |-------|-------------|-------------|
-| InventoryUpdatedEvent | `inventory.updated` | Inventory quantity changed |
-| InventoryLowEvent | `inventory.low` | Stock below threshold |
-| InventoryReservedEvent | `inventory.reserved` | Stock reserved for order |
+| `inventory.updated` | `inventory.updated` | Inventory quantity changed |
+| `inventory.low` | `inventory.low` | Stock below threshold |
+| `inventory.reserved` | `inventory.reserved` | Stock reserved for order |
 
-See [Message Schemas](../shopping-cart-infra/docs/message-schemas.md) for event format details.
-
-## Prerequisites
-
-- Python 3.11+
-- PostgreSQL 15+
-- RabbitMQ 3.12+ (via shopping-cart-infra)
-- HashiCorp Vault (optional, for dynamic credentials)
-
-## Quick Start
-
-### 1. Install Dependencies
-
+### API Examples
 ```bash
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate
-
-# Install package with dev dependencies
-pip install -e ".[dev,rabbitmq]"
-```
-
-### 2. Run with Docker Compose (Development)
-
-```bash
-docker-compose up -d
-python -m product_catalog.main
-```
-
-### 3. Run with uvicorn directly
-
-```bash
-uvicorn product_catalog.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `HOST` | 0.0.0.0 | Server host |
-| `PORT` | 8000 | Server port |
-| `DB_HOST` | localhost | PostgreSQL host |
-| `DB_PORT` | 5432 | PostgreSQL port |
-| `DB_NAME` | products | Database name |
-| `DB_USERNAME` | postgres | Database username |
-| `DB_PASSWORD` | postgres | Database password |
-| `RABBITMQ_HOST` | localhost | RabbitMQ host |
-| `RABBITMQ_PORT` | 5672 | RabbitMQ AMQP port |
-| `VAULT_ENABLED` | false | Enable Vault integration |
-| `VAULT_ADDR` | http://localhost:8200 | Vault address |
-| `VAULT_ROLE` | product-publisher | Vault role for RabbitMQ |
-
-## API Endpoints
-
-### List Products
-```bash
+# List products
 GET /api/products?page=1&page_size=20&category=electronics&active_only=true
-```
 
-### Get Product by ID
-```bash
+# Get by ID
 GET /api/products/{product_id}
-```
 
-### Get Product by SKU
-```bash
-GET /api/products/sku/{sku}
-```
-
-### Create Product
-```bash
+# Create product
 POST /api/products
-Content-Type: application/json
 
-{
-  "sku": "WIDGET-001",
-  "name": "Premium Widget",
-  "description": "A high-quality widget",
-  "price": 29.99,
-  "currency": "USD",
-  "quantity": 100,
-  "category": "electronics"
-}
-```
-
-### Update Product
-```bash
-PATCH /api/products/{product_id}
-Content-Type: application/json
-
-{
-  "price": 34.99,
-  "quantity": 150
-}
-```
-
-### Update Inventory
-```bash
+# Update inventory
 POST /api/products/{product_id}/inventory
-Content-Type: application/json
-
-{
-  "quantity_change": -5,
-  "reason": "Order fulfillment"
-}
 ```
 
-### Delete Product (soft delete)
-```bash
-DELETE /api/products/{product_id}
-```
-
-## Health & Metrics
-
+### Health & Metrics
 | Endpoint | Description |
 |----------|-------------|
 | `/health` | Health check with database status |
@@ -164,65 +96,82 @@ DELETE /api/products/{product_id}
 | `/live` | Kubernetes liveness probe |
 | `/metrics` | Prometheus metrics |
 
-## Development
-
-### Run Tests
-
+### Development Commands
 ```bash
 # Unit tests
 pytest tests/unit -v
 
-# Integration tests (requires Docker)
+# Integration tests
 pytest tests/integration -v
 
-# With coverage
+# Coverage
 pytest --cov=product_catalog --cov-report=term-missing
+
+# Formatting & linting
+black src tests && isort src tests && mypy src && ruff check src tests
 ```
 
-### Code Style
+---
 
-```bash
-# Format code
-black src tests
-isort src tests
+## Architecture
+See **[Service Architecture](docs/architecture/README.md)** for detailed component diagrams, data model, and RabbitMQ integration.
 
-# Type checking
-mypy src
+---
 
-# Linting
-ruff check src tests
-```
-
-## Project Structure
-
+## Directory Layout
 ```
 shopping-cart-product-catalog/
-├── src/
-│   └── product_catalog/
-│       ├── __init__.py
-│       ├── config.py           # Configuration management
-│       ├── database.py         # Database connection
-│       ├── events.py           # RabbitMQ event definitions
-│       ├── main.py             # FastAPI application
-│       ├── models.py           # SQLAlchemy models
-│       ├── schemas.py          # Pydantic schemas
-│       └── routers/
-│           ├── health.py       # Health check endpoints
-│           └── products.py     # Product CRUD endpoints
-├── tests/
-│   ├── unit/
-│   └── integration/
+├── src/product_catalog/
+│   ├── config.py      # Settings management
+│   ├── database.py    # SQLAlchemy engine/session
+│   ├── events.py      # RabbitMQ event payloads
+│   ├── main.py        # FastAPI app entrypoint
+│   ├── models.py      # SQLAlchemy models
+│   ├── routers/       # FastAPI routers
+│   └── schemas.py     # Pydantic schemas
+├── tests/             # Unit/integration tests
+├── docs/              # Architecture/API/testing/troubleshooting
 ├── pyproject.toml
-├── README.md
-└── CLAUDE.md
+└── Dockerfile, Makefile, etc.
 ```
 
-## Related Repositories
+---
 
-- [shopping-cart-infra](../shopping-cart-infra) - Kubernetes infrastructure, RabbitMQ cluster
-- [shopping-cart-order](../shopping-cart-order) - Order processing service
-- [rabbitmq-client-library](../rabbitmq-client-library) - Python RabbitMQ client library
+## Documentation
+
+### Architecture
+- **[Service Architecture](docs/architecture/README.md)** — System design, data flow, security considerations.
+
+### API Reference
+- **[API Reference](docs/api/README.md)** — Endpoint payloads, filtering options, and error responses.
+
+### Testing
+- **[Testing Guide](docs/testing/README.md)** — Pytest/mypy/ruff/pip-audit commands.
+
+### Troubleshooting
+- **[Troubleshooting Guide](docs/troubleshooting/README.md)** — Database connectivity, RabbitMQ auth, env var tips.
+
+### Issue Logs
+- No logged issues yet — add Markdown files under `docs/issues/` as they arise.
+
+---
+
+## Releases
+
+| Version | Date | Highlights |
+|---------|------|------------|
+| v0.1.0 | TBD | Initial FastAPI catalog service with PostgreSQL + RabbitMQ events |
+
+---
+
+## Related
+- [Platform Architecture](https://github.com/wilddog64/shopping-cart-infra/blob/main/docs/architecture.md)
+- [shopping-cart-infra](https://github.com/wilddog64/shopping-cart-infra)
+- [shopping-cart-order](https://github.com/wilddog64/shopping-cart-order)
+- [shopping-cart-payment](https://github.com/wilddog64/shopping-cart-payment)
+- [shopping-cart-basket](https://github.com/wilddog64/shopping-cart-basket)
+
+---
 
 ## License
-
-MIT
+Apache 2.0
