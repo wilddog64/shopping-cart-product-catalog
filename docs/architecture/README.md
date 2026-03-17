@@ -17,31 +17,19 @@ The Product Catalog Service is a FastAPI-based microservice responsible for mana
 
 ## Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        API Gateway                               │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   Product Catalog Service                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │    Routers   │──│   Services   │──│    Repositories      │  │
-│  │   (FastAPI)  │  │   (Logic)    │  │    (SQLAlchemy)      │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-│         │                 │                     │               │
-│         ▼                 ▼                     ▼               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │     Auth     │  │    Event     │  │     PostgreSQL       │  │
-│  │ Middleware   │  │  Publisher   │  │     Database         │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                    ┌──────────────────┐
-                    │     RabbitMQ     │
-                    │   Message Broker │
-                    └──────────────────┘
+```mermaid
+graph TD
+    GW[API Gateway] --> RT
+
+    subgraph PCS[Product Catalog Service]
+        RT[Routers / FastAPI] --> SVC[Services / Logic]
+        SVC --> REPO[Repositories / SQLAlchemy]
+        RT --> AUTH[Auth Middleware]
+        SVC --> EP[Event Publisher]
+        REPO --> PG[(PostgreSQL)]
+    end
+
+    EP --> MQ[RabbitMQ / Message Broker]
 ```
 
 ## Project Structure
@@ -133,13 +121,26 @@ class Category(Base):
 
 ### Authentication Flow
 
-```
-1. Client → Keycloak: Get JWT token
-2. Client → Product Catalog: Request + Bearer token
-3. Product Catalog → Keycloak JWKS: Fetch signing keys
-4. Product Catalog: Validate JWT signature
-5. Product Catalog: Extract roles from claims
-6. Product Catalog: Authorize based on roles
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant KC as Keycloak
+    participant PC as Product Catalog
+    participant JWKS as Keycloak JWKS
+
+    C->>KC: Get JWT token
+    KC-->>C: JWT token
+    C->>PC: Request + Bearer token
+    PC->>JWKS: Fetch signing keys
+    JWKS-->>PC: Public keys
+    PC->>PC: Validate JWT signature
+    PC->>PC: Extract roles from claims
+    PC->>PC: Authorize based on roles
+    alt authorized
+        PC-->>C: 200 response
+    else unauthorized
+        PC-->>C: 403 Forbidden
+    end
 ```
 
 ### Role-Based Access
