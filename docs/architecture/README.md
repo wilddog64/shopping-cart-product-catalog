@@ -17,31 +17,19 @@ The Product Catalog Service is a FastAPI-based microservice responsible for mana
 
 ## Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        API Gateway                               │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   Product Catalog Service                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │    Routers   │──│   Services   │──│    Repositories      │  │
-│  │   (FastAPI)  │  │   (Logic)    │  │    (SQLAlchemy)      │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-│         │                 │                     │               │
-│         ▼                 ▼                     ▼               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │     Auth     │  │    Event     │  │     PostgreSQL       │  │
-│  │ Middleware   │  │  Publisher   │  │     Database         │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                    ┌──────────────────┐
-                    │     RabbitMQ     │
-                    │   Message Broker │
-                    └──────────────────┘
+```mermaid
+graph TD
+    GW[API Gateway] --> PC
+
+    subgraph PC[Product Catalog Service]
+        RT[Routers / FastAPI] --> SVC[Services / Logic]
+        SVC --> REPO[Repositories / SQLAlchemy]
+        RT --> AUTH[Auth Middleware]
+        SVC --> EP[Event Publisher]
+        REPO --> PG[(PostgreSQL)]
+    end
+
+    EP --> MQ[RabbitMQ / Message Broker]
 ```
 
 ## Project Structure
