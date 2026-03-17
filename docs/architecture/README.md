@@ -121,13 +121,21 @@ class Category(Base):
 
 ### Authentication Flow
 
-```
-1. Client → Keycloak: Get JWT token
-2. Client → Product Catalog: Request + Bearer token
-3. Product Catalog → Keycloak JWKS: Fetch signing keys
-4. Product Catalog: Validate JWT signature
-5. Product Catalog: Extract roles from claims
-6. Product Catalog: Authorize based on roles
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant KC as Keycloak
+    participant PC as Product Catalog
+    participant JWKS as Keycloak JWKS
+
+    C->>KC: Get JWT token
+    KC-->>C: JWT token
+    C->>PC: Request + Bearer token
+    PC->>JWKS: Fetch signing keys
+    JWKS-->>PC: Public keys
+    PC->>PC: Validate JWT signature
+    PC->>PC: Extract roles from claims
+    PC-->>C: Authorized response
 ```
 
 ### Role-Based Access
