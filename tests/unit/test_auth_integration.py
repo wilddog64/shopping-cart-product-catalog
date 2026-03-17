@@ -4,6 +4,8 @@ import time
 from unittest.mock import MagicMock, patch
 
 import pytest
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 from jose import jwt
@@ -19,44 +21,18 @@ from product_catalog.auth import (
     require_role,
 )
 
-# Test RSA keys for JWT signing (for testing only)
-TEST_PRIVATE_KEY = """-----BEGIN RSA PRIVATE KEY-----
-MIIEogIBAAKCAQEAuMotuKGBCgiiKiNRmUZBFr4Fcl0TSRzkTjOn7RJYxGfJARYL
-IbV/3kevSuzQrUSJineUQFgv40jf5be/GauyLooJyforKwrsNWjWWeGVc+xRa4Wz
-EwJVX6b0jXKuKKHGAnLMZ/bAuTHaClwfiAANHY2Xp1OPRpfLAgypcdWOaG40nCuB
-JK1fptA7Hn8Cd+oRtF1TtvfmbbmhgevedNXQMk2kSTNTEuD3R2S4pjM6+sqQvdht
-q9sexSzKMnEDcZlkl0LXxCR8J+bfuU8jIk6LysWhospCBCWwymogZV4cQjpZh+/J
-xKBKt5V7MlbmtIYvGjMr6KB4PTk3VspL2jy8UQIDAQABAoIBABd1NvOisO5UpT1j
-KWcjN30LF0bq0NltrP/OZ+lc9F7ObAJSyYv4beiKQhLpWB4+vpUQ1AWNDFs2c5HG
-TyCTnrVwuYhl1RgMNWscSWW0kNPb8oQLP23Q1ISlfZL9NWWcD7Zc21zxQorf7LV2
-91u84e1X/aH0phIIj/FNKS91tDPGXm2U3+Gpup/HFU7+UO5vZs6bMrp8H7VitmRO
-BLXSnpyFNyHmMWBiMhgu9Az6K+6JuX9lBdbrSSuIoDRQYL8UGF2TuGTpsorMPkZg
-fvXP6IX7V/DXYzWJj5Qtg/VBh0J9Ls4zGUJIAybtHE8QpEN04lkSY0s1IXTyHL9p
-Y71fZ68CgYEA4eR6f4EwuIMWhludmAN4xpv5qsYXmwKe7+lUQO8G4QG76kuMuBlj
-vyytt+UkACEOGiXKzFDQWFyfEGjKjqalUXKIMNqwpUFzeBU6lRDxFsOLX+gp3joN
-5qxIGG5+dx6Jodq4RbaN27u2R7J+rHwSix/d001BUyBmy5OZkCBYzb8CgYEA0WtD
-G87qukN5i7XUatjefhE8H8ng26ByyGWbegSLVRGGzE+878ruJlKIOURx9jGdE15y
-+6e4QnezA1Ep3L0kXyh7BK7E7DGlg2h719T/CohsjfF7M47dnPwNEmMsP8tZKin/
-HR0wCZB1FHIrHVa9xip3rOa/bDEBctbNfe4DGe8CgYBnn9hSBYHEIt6CZCS3R2Bw
-O70ciiLqCRnAFNmBsCUHszPxFxdGnN8VI/nNEmChboh5ljyh3bC12Edfz7KcHfZY
-lqHDR48hQBUoURS+rTbrqmiVZntOZnNaDk5EZuu82VVp2lwOHuCUnFfSLB/QIFqh
-V8z60cXVzFdbrCoV48DZIQKBgEvlCpoeYBUG9Rq71/KtC902U8rVd+dAe7jCkhkj
-Ynd+9ZI/56IjsjEzQek3M/HcQyfM1/D59J4qETdHh9tWtMLDwemNiRJsX6aDDDbJ
-G3DuxiCe/l5ODWSiN/6M8HFiObs9IxajCFC/CJ9TTOrCD96sb1i6+26zR+odjLVx
-t7ADAoGAA44XnbP/x2YqKO7tyFeeScU+oQmnFZU6mOqCwGxfuCqKYrP78XZOf49g
-7V5mKe75wtmk8QZxoFgieAm488j2+wyNoXOqWqmhve0mJX2fFotduVQJH5+oKRAj
-T2VIpmLyPksH6Epmlxefn8Q00cAvBuAqlRZ2eRnL8jD3aWs0Xnk=
------END RSA PRIVATE KEY-----"""
-
-TEST_PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuMotuKGBCgiiKiNRmUZB
-Fr4Fcl0TSRzkTjOn7RJYxGfJARYLIbV/3kevSuzQrUSJineUQFgv40jf5be/Gauy
-LooJyforKwrsNWjWWeGVc+xRa4WzEwJVX6b0jXKuKKHGAnLMZ/bAuTHaClwfiAAN
-HY2Xp1OPRpfLAgypcdWOaG40nCuBJK1fptA7Hn8Cd+oRtF1TtvfmbbmhgevedNXQ
-Mk2kSTNTEuD3R2S4pjM6+sqQvdhtq9sexSzKMnEDcZlkl0LXxCR8J+bfuU8jIk6L
-ysWhospCBCWwymogZV4cQjpZh+/JxKBKt5V7MlbmtIYvGjMr6KB4PTk3VspL2jy8
-UQIDAQAB
------END PUBLIC KEY-----"""
+# Generate a fresh RSA key pair at test-module load time.
+# Keys are ephemeral — never committed to version control.
+_TEST_RSA_KEY = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+TEST_PRIVATE_KEY = _TEST_RSA_KEY.private_bytes(
+    encoding=serialization.Encoding.PEM,
+    format=serialization.PrivateFormat.TraditionalOpenSSL,
+    encryption_algorithm=serialization.NoEncryption(),
+).decode()
+TEST_PUBLIC_KEY = _TEST_RSA_KEY.public_key().public_bytes(
+    encoding=serialization.Encoding.PEM,
+    format=serialization.PublicFormat.SubjectPublicKeyInfo,
+).decode()
 
 
 def create_test_token(
