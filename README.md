@@ -225,4 +225,4 @@ shopping-cart-product-catalog/
 
 ## License
 
-MIT
+Apache 2.0
