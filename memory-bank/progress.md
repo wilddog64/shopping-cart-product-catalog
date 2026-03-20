@@ -53,7 +53,7 @@
 - [ ] **Pydantic schemas** — `schemas.py` exists but content not deeply explored; full CRUD schema set may be partially implemented
 - [ ] **Category hierarchy** — architecture docs reference Category entity and `CategoryService`; current implementation uses a flat `category: String` field in Product; full category tree is not implemented
 - [ ] **Search functionality** — architecture docs reference search/filtering; only basic category filter and pagination visible in API docs
-- [ ] **GitHub Actions CI/CD** — no workflow files in `.github/workflows/` (unlike Payment Service); CI pipeline not defined in this repo
+- [x] **GitHub Actions CI/CD** — `.github/workflows/ci.yml` exists and now pins `build-push-deploy.yml@999f8d7` for linux/amd64+linux/arm64 builds (2026-03-17)
 - [ ] **Load/performance testing**
 - [ ] **Full mypy strict compliance** — `mypy src/` should pass with strict mode; may have remaining type annotation gaps
 - [ ] **RabbitMQ consumer** — service publishes `inventory.*` events but there is no visible consumer setup for `order.*` events that might trigger inventory reservation

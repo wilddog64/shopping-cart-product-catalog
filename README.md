@@ -45,25 +45,17 @@ docker-compose up -d
 ## Usage
 
 ### Architecture
-```
-┌─────────────────────────────────────────────────────────────┐
-│                  Product Catalog Service                     │
-├─────────────────────────────────────────────────────────────┤
-│  REST API           │  Event Publisher    │  Event Consumer │
-│  - GET /products    │  - inventory.updated│  - order.*      │
-│  - POST /products   │  - inventory.low    │                 │
-│  - PATCH /products  │  - inventory.reserved                 │
-│  - POST /inventory  │                     │                 │
-├─────────────────────────────────────────────────────────────┤
-│                     PostgreSQL                               │
-│                     (products)                               │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────┐
-                    │    RabbitMQ     │
-                    │  events exchange │
-                    └─────────────────┘
+
+```mermaid
+graph TD
+    GW[API Gateway] --> RT[FastAPI Routers]
+    subgraph PCS[Product Catalog Service]
+        RT --> SVC[Service Logic]
+        SVC --> REPO[Repository]
+        SVC --> EP[Event Publisher]
+        REPO --> PG[(PostgreSQL)]
+    end
+    EP --> MQ[RabbitMQ]
 ```
 
 ### Event Publishing
