@@ -18,7 +18,7 @@ Supports Redis backend for cluster-wide enforcement.
 ### 1. Add dependencies
 
 ```toml
-# pyproject.toml or requirements
+# pyproject.toml
 slowapi>=0.1.9
 redis>=5.0.0
 ```
@@ -46,10 +46,8 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 ### 3. Apply to routes in `routers/products.py`
 
 ```python
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-
-limiter = Limiter(key_func=get_remote_address)
+from fastapi import Request
+from main import limiter  # reuse Redis-backed limiter configured in main.py
 
 @router.get("/products")
 @limiter.limit("60/minute")          # list — generous, read-only
@@ -96,7 +94,7 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 - [ ] Health routes excluded
 - [ ] 429 response is JSON with `Retry-After` header
 - [ ] Unit tests: limit triggers after N requests; health endpoint bypasses limit
-- [ ] No changes to Dockerfiles, k8s manifests, or database code
+- [ ] No changes to Dockerfiles or database code (k8s manifests will need REDIS_HOST/REDIS_PORT added to configmap)
 
 ## What NOT to Do
 
