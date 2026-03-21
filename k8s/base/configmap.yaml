@@ -16,7 +16,7 @@ data:
   PORT: "8080"
 
   # Database settings
-  DATABASE_HOST: "postgres.shopping-cart-data.svc.cluster.local"
+  DATABASE_HOST: "postgresql-products.shopping-cart-data.svc.cluster.local"
   DATABASE_PORT: "5432"
   DATABASE_NAME: "product_catalog"
 
