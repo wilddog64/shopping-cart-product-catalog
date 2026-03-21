@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- Align k8s manifests with data-layer: correct DATABASE_USER, DATABASE_PASSWORD, RABBITMQ_USER, RABBITMQ_PASSWORD, fix DATABASE_HOST to postgresql-products.shopping-cart-data.svc.cluster.local, fix readiness probe path /health/ready→/health
+
 ### Changed
 - Reduce deployment replicas from 2 to 1 for dev/test environment; delete HPA (`minReplicas: 2` was scaling pods back up on single-node cluster); will reintroduce in v1.1.0 EKS
 
