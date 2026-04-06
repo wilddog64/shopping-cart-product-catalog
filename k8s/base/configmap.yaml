@@ -18,7 +18,7 @@ data:
   # Database settings
   DB_HOST: "postgresql-products.shopping-cart-data.svc.cluster.local"
   DB_PORT: "5432"
-  DB_NAME: "product_catalog"
+  DB_NAME: "products"
 
   # RabbitMQ settings
   RABBITMQ_HOST: "rabbitmq.shopping-cart-data.svc.cluster.local"
