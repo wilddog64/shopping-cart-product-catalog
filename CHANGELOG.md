@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- `k8s/base/namespace.yaml` (deleted), `k8s/base/kustomization.yaml`: remove duplicate `Namespace/shopping-cart-apps` definition — namespace is now owned by the dedicated `shopping-cart-namespace` ArgoCD Application in k3d-manager; resolves `SharedResourceWarning` that kept this app `OutOfSync`
 - Align k8s manifests with data-layer: correct DATABASE_USER, DATABASE_PASSWORD, RABBITMQ_USER, RABBITMQ_PASSWORD, fix DATABASE_HOST to postgresql-products.shopping-cart-data.svc.cluster.local, fix readiness probe path /health/ready→/health
 
 ### Changed
