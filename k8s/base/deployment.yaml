@@ -30,6 +30,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8080"
         prometheus.io/path: "/metrics"
+        checksum/config: "467dddbb5181"
     spec:
       serviceAccountName: product-catalog
       securityContext:
