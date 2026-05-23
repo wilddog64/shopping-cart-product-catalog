@@ -1,0 +1,66 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: product-catalog-seed
+  namespace: shopping-cart-apps
+  labels:
+    app.kubernetes.io/name: product-catalog
+    app.kubernetes.io/component: seed
+    app.kubernetes.io/part-of: shopping-cart
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: product-catalog
+        app.kubernetes.io/component: seed
+        app.kubernetes.io/part-of: shopping-cart
+    spec:
+      restartPolicy: OnFailure
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+      - name: seed
+        image: postgres:15-alpine
+        command:
+        - sh
+        - -c
+        - |
+          psql "postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}" <<'SQL'
+          INSERT INTO products (id, sku, name, description, price, currency, quantity, category, is_active, image_url, created_at, updated_at)
+          VALUES
+            ('c54557c7-c2d6-444a-93e3-19d61538b76a', 'LAPTOP-001', 'ProBook 15 Laptop', 'High-performance 15-inch laptop with 16GB RAM and 512GB SSD', 1299.99, 'USD', 50, 'Electronics', true, NULL, NOW(), NOW()),
+            ('ea7b93d8-a435-4956-95a2-989f7e2cd22e', 'PHONE-001', 'SmartPhone X12', 'Latest flagship smartphone with 6.7-inch AMOLED display', 899.99, 'USD', 100, 'Electronics', true, NULL, NOW(), NOW()),
+            ('ae620c83-7202-4023-bf1f-66b4c05a2aaa', 'HEADPHONES-001', 'ANC Pro Headphones', 'Wireless noise-cancelling headphones with 30-hour battery', 349.99, 'USD', 75, 'Electronics', true, NULL, NOW(), NOW()),
+            ('680978cb-004b-46be-9184-4fd1ea5ee90c', 'KEYBOARD-001', 'Mechanical Keyboard TKL', 'Tenkeyless mechanical keyboard with Cherry MX switches', 129.99, 'USD', 200, 'Peripherals', true, NULL, NOW(), NOW()),
+            ('b9e7370b-d6a6-4d16-a9c7-6e8fd2c4df56', 'MOUSE-001', 'Ergonomic Wireless Mouse', 'Ergonomic wireless mouse with 6-month battery life', 59.99, 'USD', 150, 'Peripherals', true, NULL, NOW(), NOW()),
+            ('9776e07c-492b-4974-a40f-4dad6d49cea7', 'MONITOR-001', '27-inch 4K Monitor', 'IPS 4K monitor with 144Hz refresh rate and USB-C', 599.99, 'USD', 30, 'Monitors', true, NULL, NOW(), NOW()),
+            ('20709ec1-fff1-41a2-9999-bec858df6934', 'WEBCAM-001', 'HD Webcam 1080p', '1080p webcam with built-in noise-cancelling microphone', 89.99, 'USD', 120, 'Peripherals', true, NULL, NOW(), NOW()),
+            ('1bf6295e-3cca-4a14-bb6a-ce3a675118a6', 'DESKPAD-001', 'XL Desk Mat', 'Extra-large 90x40cm desk mat with non-slip base', 29.99, 'USD', 300, 'Accessories', true, NULL, NOW(), NOW())
+          ON CONFLICT (sku) DO NOTHING;
+          SQL
+        envFrom:
+        - configMapRef:
+            name: product-catalog-config
+        - secretRef:
+            name: product-catalog-secrets
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: tmp
+        emptyDir: {}
