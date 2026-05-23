@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Add Kubernetes `PostSync` Job to seed 8 sample products into the products database on first deploy; idempotent via `ON CONFLICT (sku) DO NOTHING`
+
 ### Fixed
 - `k8s/base/service.yaml`: set ClusterIP `port` to 8082 to match frontend nginx upstream config at `/api/products → product-catalog.shopping-cart-apps.svc.cluster.local:8082`; port was 80, causing kube-proxy to drop requests and produce 504 on every API call
 - `k8s/base/namespace.yaml` (deleted), `k8s/base/kustomization.yaml`: remove duplicate `Namespace/shopping-cart-apps` definition — namespace is now owned by the dedicated `shopping-cart-namespace` ArgoCD Application in k3d-manager; resolves `SharedResourceWarning` that kept this app `OutOfSync`
