@@ -17,6 +17,7 @@ resources:
 - secret.yaml
 - deployment.yaml
 - service.yaml
+- seed-job.yaml
 
 configMapGenerator:
 - name: product-catalog-config

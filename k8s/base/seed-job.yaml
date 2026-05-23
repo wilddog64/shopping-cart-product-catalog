@@ -1,0 +1,60 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: product-catalog-seed
+  namespace: shopping-cart-apps
+  labels:
+    app.kubernetes.io/name: product-catalog
+    app.kubernetes.io/component: seed
+    app.kubernetes.io/part-of: shopping-cart
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: product-catalog
+        app.kubernetes.io/component: seed
+        app.kubernetes.io/part-of: shopping-cart
+    spec:
+      restartPolicy: OnFailure
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+      - name: seed
+        image: postgres:15-alpine
+        command:
+        - sh
+        - -c
+        - |
+          psql "postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}" <<'SQL'
+          INSERT INTO products (id, sku, name, description, price, currency, quantity, category, is_active, image_url, created_at, updated_at)
+          VALUES
+            (gen_random_uuid(), 'LAPTOP-001', 'ProBook 15 Laptop', 'High-performance 15-inch laptop with 16GB RAM and 512GB SSD', 1299.99, 'USD', 50, 'Electronics', true, NULL, NOW(), NOW()),
+            (gen_random_uuid(), 'PHONE-001', 'SmartPhone X12', 'Latest flagship smartphone with 6.7-inch AMOLED display', 899.99, 'USD', 100, 'Electronics', true, NULL, NOW(), NOW()),
+            (gen_random_uuid(), 'HEADPHONES-001', 'ANC Pro Headphones', 'Wireless noise-cancelling headphones with 30-hour battery', 349.99, 'USD', 75, 'Electronics', true, NULL, NOW(), NOW()),
+            (gen_random_uuid(), 'KEYBOARD-001', 'Mechanical Keyboard TKL', 'Tenkeyless mechanical keyboard with Cherry MX switches', 129.99, 'USD', 200, 'Peripherals', true, NULL, NOW(), NOW()),
+            (gen_random_uuid(), 'MOUSE-001', 'Ergonomic Wireless Mouse', 'Ergonomic wireless mouse with 6-month battery life', 59.99, 'USD', 150, 'Peripherals', true, NULL, NOW(), NOW()),
+            (gen_random_uuid(), 'MONITOR-001', '27-inch 4K Monitor', 'IPS 4K monitor with 144Hz refresh rate and USB-C', 599.99, 'USD', 30, 'Monitors', true, NULL, NOW(), NOW()),
+            (gen_random_uuid(), 'WEBCAM-001', 'HD Webcam 1080p', '1080p webcam with built-in noise-cancelling microphone', 89.99, 'USD', 120, 'Peripherals', true, NULL, NOW(), NOW()),
+            (gen_random_uuid(), 'DESKPAD-001', 'XL Desk Mat', 'Extra-large 90x40cm desk mat with non-slip base', 29.99, 'USD', 300, 'Accessories', true, NULL, NOW(), NOW())
+          ON CONFLICT (sku) DO NOTHING;
+          SQL
+        envFrom:
+        - configMapRef:
+            name: product-catalog-config
+        - secretRef:
+            name: product-catalog-secrets
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
