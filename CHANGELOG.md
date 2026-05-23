@@ -8,6 +8,8 @@
 - Product image URLs point to MinIO via nginx proxy (`/minio/product-images/<subcategory>.jpg`); deterministic prices and quantities
 
 ### Fixed
+- `src/product_catalog/routers/products.py`: add `ORDER BY id` to list query — without it, PostgreSQL returns rows in heap order (all laptops on page 1 because they were inserted first by the seed job)
+- `.github/workflows/ci.yml`: bump pinned `shopping-cart-infra` SHA from `999f8d7` to `dd7496b` — old SHA referenced `trivy-action@0.30.0` which no longer resolves, blocking all image builds since PR #23 merged
 - `k8s/base/service.yaml`: set ClusterIP `port` to 8082 to match frontend nginx upstream config at `/api/products → product-catalog.shopping-cart-apps.svc.cluster.local:8082`; port was 80, causing kube-proxy to drop requests and produce 504 on every API call
 - `k8s/base/namespace.yaml` (deleted), `k8s/base/kustomization.yaml`: remove duplicate `Namespace/shopping-cart-apps` definition — namespace is now owned by the dedicated `shopping-cart-namespace` ArgoCD Application in k3d-manager; resolves `SharedResourceWarning` that kept this app `OutOfSync`
 - Align k8s manifests with data-layer: correct DATABASE_USER, DATABASE_PASSWORD, RABBITMQ_USER, RABBITMQ_PASSWORD, fix DATABASE_HOST to postgresql-products.shopping-cart-data.svc.cluster.local, fix readiness probe path /health/ready→/health
