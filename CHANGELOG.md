@@ -3,7 +3,10 @@
 ## [Unreleased]
 
 ### Added
-- Add Kubernetes `PostSync` Job to seed 8 sample products into the products database on first deploy; idempotent via `ON CONFLICT (sku) DO NOTHING`
+- Python-based seed Job generating 1,000 products across 4 categories × 20 subcategories (50 each with deterministic UUIDs)
+- GIN full-text search index on `name || description || category`; wired `?q=` query param to `GET /api/products` for search results
+- Product image URLs point to MinIO via nginx proxy (`/minio/product-images/<subcategory>.jpg`); deterministic prices and quantities
+- Kubernetes `PostSync` Job to seed 8 sample products into the products database on first deploy; idempotent via `ON CONFLICT (sku) DO NOTHING`
 
 ### Fixed
 - `k8s/base/service.yaml`: set ClusterIP `port` to 8082 to match frontend nginx upstream config at `/api/products → product-catalog.shopping-cart-apps.svc.cluster.local:8082`; port was 80, causing kube-proxy to drop requests and produce 504 on every API call
