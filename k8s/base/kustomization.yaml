@@ -17,7 +17,9 @@ resources:
 - secret.yaml
 - deployment.yaml
 - service.yaml
+- seed-job-configmap.yaml
 - seed-job.yaml
+- fts-index-job.yaml
 
 configMapGenerator:
 - name: product-catalog-config

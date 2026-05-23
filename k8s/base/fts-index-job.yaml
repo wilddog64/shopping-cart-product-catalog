@@ -2,11 +2,11 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: product-catalog-seed
+  name: product-catalog-fts-index
   namespace: shopping-cart-apps
   labels:
     app.kubernetes.io/name: product-catalog
-    app.kubernetes.io/component: seed
+    app.kubernetes.io/component: fts-index
     app.kubernetes.io/part-of: shopping-cart
   annotations:
     argocd.argoproj.io/hook: PostSync
@@ -18,7 +18,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: product-catalog
-        app.kubernetes.io/component: seed
+        app.kubernetes.io/component: fts-index
         app.kubernetes.io/part-of: shopping-cart
     spec:
       restartPolicy: OnFailure
@@ -28,22 +28,26 @@ spec:
         runAsGroup: 999
         fsGroup: 999
       containers:
-      - name: seed
-        image: python:3.12-alpine
+      - name: indexer
+        image: postgres:15-alpine
         command:
           - sh
           - -c
           - |
-            pip install --quiet --target /tmp/packages psycopg2-binary
-            PYTHONPATH=/tmp/packages python3 /scripts/seed.py
+            PGPASSWORD="${DB_PASSWORD}" psql \
+              -h "${DB_HOST}" -p "${DB_PORT}" \
+              -U "${DB_USERNAME}" -d "${DB_NAME}" \
+              -v ON_ERROR_STOP=1 <<'SQL'
+            CREATE INDEX IF NOT EXISTS products_fts_idx
+              ON products
+              USING GIN(to_tsvector('english', concat_ws(' ', name, description, category)));
+            SQL
         envFrom:
         - configMapRef:
             name: product-catalog-config
         - secretRef:
             name: product-catalog-secrets
         volumeMounts:
-        - name: scripts
-          mountPath: /scripts
         - name: tmp
           mountPath: /tmp
         securityContext:
@@ -53,8 +57,5 @@ spec:
             drop:
             - ALL
       volumes:
-      - name: scripts
-        configMap:
-          name: product-catalog-seed-script
       - name: tmp
         emptyDir: {}
