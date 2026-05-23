@@ -48,7 +48,7 @@ def list_products(
         query = query.filter(search_vector.op("@@")(func.plainto_tsquery("english", q)))
 
     total = query.count()
-    items = query.offset((page - 1) * page_size).limit(page_size).all()
+    items = query.order_by(Product.id).offset((page - 1) * page_size).limit(page_size).all()
 
     return PaginatedResponse(
         items=[ProductResponse.model_validate(p) for p in items],
