@@ -34,8 +34,8 @@ spec:
           - sh
           - -c
           - |
-            pip install --quiet psycopg2-binary
-            python3 /scripts/seed.py
+            pip install --quiet --target /tmp/packages psycopg2-binary
+            PYTHONPATH=/tmp/packages python3 /scripts/seed.py
         envFrom:
         - configMapRef:
             name: product-catalog-config

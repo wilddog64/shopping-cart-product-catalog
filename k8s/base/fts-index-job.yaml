@@ -34,16 +34,13 @@ spec:
           - sh
           - -c
           - |
-            psql "postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}" <<'SQL'
+            PGPASSWORD="${DB_PASSWORD}" psql \
+              -h "${DB_HOST}" -p "${DB_PORT}" \
+              -U "${DB_USERNAME}" -d "${DB_NAME}" \
+              -v ON_ERROR_STOP=1 <<'SQL'
             CREATE INDEX IF NOT EXISTS products_fts_idx
               ON products
-              USING GIN(
-                to_tsvector('english',
-                  name || ' ' ||
-                  COALESCE(description, '') || ' ' ||
-                  COALESCE(category, '')
-                )
-              );
+              USING GIN(to_tsvector('english', concat_ws(' ', name, description, category)));
             SQL
         envFrom:
         - configMapRef:
