@@ -4,6 +4,7 @@ from uuid import UUID
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -27,9 +28,10 @@ def list_products(
     page_size: int = Query(default=20, ge=1, le=100),
     category: str | None = None,
     active_only: bool = True,
+    q: str | None = Query(default=None, description="Full-text search across name, description, and category"),
     db: Session = Depends(get_db),
 ) -> PaginatedResponse:
-    """List products with pagination."""
+    """List products with pagination and optional full-text search."""
     query = db.query(Product)
 
     if active_only:
@@ -37,6 +39,13 @@ def list_products(
 
     if category:
         query = query.filter(Product.category == category)
+
+    if q:
+        search_vector = func.to_tsvector(
+            "english",
+            func.concat_ws(" ", Product.name, Product.description, Product.category),
+        )
+        query = query.filter(search_vector.op("@@")(func.plainto_tsquery("english", q)))
 
     total = query.count()
     items = query.offset((page - 1) * page_size).limit(page_size).all()
