@@ -34,7 +34,8 @@ Actual: first 20 results are all `LAPTOP-*` products.
 ### Change 1 — `src/product_catalog/routers/products.py` line 51
 
 Add `.order_by(Product.id)` before `.offset().limit()` so results are stable and consistent
-across pages, and naturally varied because the DB has mixed insertion order from multiple seed runs.
+across pages. The seed assigns deterministic UUIDv5 IDs derived from the SKU, so ordering by `id`
+distributes products across categories naturally (hashed UUID ordering, not insertion order).
 
 **Exact old block (lines 50–51):**
 
