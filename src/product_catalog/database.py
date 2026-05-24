@@ -43,7 +43,7 @@ def get_db_context() -> Generator[Session, None, None]:
 def init_db() -> None:
     """Initialize database tables."""
     Base.metadata.create_all(bind=engine)
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         conn.execute(text("""
             CREATE OR REPLACE FUNCTION products_search_vector(
                 name text,
@@ -54,4 +54,3 @@ def init_db() -> None:
                 SELECT to_tsvector('pg_catalog.english', concat_ws(' ', name, description, category))
             $$
         """))
-        conn.commit()
