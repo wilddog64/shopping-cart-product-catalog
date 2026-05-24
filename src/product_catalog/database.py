@@ -3,7 +3,7 @@
 from collections.abc import Generator
 from contextlib import contextmanager
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 
 from .config import get_settings
@@ -43,3 +43,14 @@ def get_db_context() -> Generator[Session, None, None]:
 def init_db() -> None:
     """Initialize database tables."""
     Base.metadata.create_all(bind=engine)
+    with engine.begin() as conn:
+        conn.execute(text("""
+            CREATE OR REPLACE FUNCTION products_search_vector(
+                name text,
+                description text,
+                category text
+            )
+            RETURNS tsvector LANGUAGE sql IMMUTABLE AS $$
+                SELECT to_tsvector('pg_catalog.english', concat_ws(' ', name, description, category))
+            $$
+        """))
