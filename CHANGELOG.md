@@ -8,6 +8,7 @@
 - Product image URLs point to MinIO via nginx proxy (`/minio/product-images/<subcategory>.jpg`); deterministic prices and quantities
 
 ### Fixed
+- Move `products_search_vector` IMMUTABLE SQL function creation into `init_db()` in `database.py` so it is always present at app startup; removes function creation from PostSync job (only `CREATE INDEX IF NOT EXISTS` remains in fts-index-job.yaml); fixes 500 errors on `GET /api/products?q=...` during the ArgoCD sync window
 - `src/product_catalog/routers/products.py`: add `ORDER BY id` to list query — without it, PostgreSQL returns rows in heap order (all laptops on page 1 because they were inserted first by the seed job)
 - `.github/workflows/ci.yml`: bump pinned `shopping-cart-infra` SHA from `999f8d7` to `dd7496b` — old SHA referenced `trivy-action@0.30.0` which no longer resolves, blocking all image builds since PR #23 merged
 - `k8s/base/service.yaml`: set ClusterIP `port` to 8082 to match frontend nginx upstream config at `/api/products → product-catalog.shopping-cart-apps.svc.cluster.local:8082`; port was 80, causing kube-proxy to drop requests and produce 504 on every API call
