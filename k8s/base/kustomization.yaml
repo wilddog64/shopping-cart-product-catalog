@@ -11,6 +11,10 @@ labels:
 - pairs:
     app.kubernetes.io/managed-by: kustomize
   includeSelectors: false
+- pairs:
+    app.kubernetes.io/name: product-catalog
+    app.kubernetes.io/part-of: shopping-cart
+  includeSelectors: true
 
 resources:
 - serviceaccount.yaml
@@ -29,11 +33,7 @@ configMapGenerator:
   envs:
   - configmap.env
 
-commonLabels:
-  app.kubernetes.io/name: product-catalog
-  app.kubernetes.io/part-of: shopping-cart
-
 images:
   - name: shopping-cart-product-catalog
     newName: ghcr.io/wilddog64/shopping-cart-product-catalog
-    newTag: latest
+    newTag: sha-28955c89245d82111f2e0801723b49fe32cee730

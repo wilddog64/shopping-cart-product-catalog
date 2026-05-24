@@ -38,9 +38,24 @@ spec:
               -h "${DB_HOST}" -p "${DB_PORT}" \
               -U "${DB_USERNAME}" -d "${DB_NAME}" \
               -v ON_ERROR_STOP=1 <<'SQL'
+            CREATE OR REPLACE FUNCTION products_search_vector(
+              name text,
+              description text,
+              category text
+            )
+            RETURNS tsvector
+            LANGUAGE sql
+            IMMUTABLE
+            AS $$
+              SELECT to_tsvector(
+                'pg_catalog.english',
+                concat_ws(' ', name, description, category)
+              );
+            $$;
+
             CREATE INDEX IF NOT EXISTS products_fts_idx
               ON products
-              USING GIN(to_tsvector('english', concat_ws(' ', name, description, category)));
+              USING GIN(products_search_vector(name, description, category));
             SQL
         envFrom:
         - configMapRef:
