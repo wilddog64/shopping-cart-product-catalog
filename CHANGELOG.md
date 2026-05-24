@@ -9,6 +9,7 @@
 - Product image URLs point to MinIO via nginx proxy (`/minio/product-images/<subcategory>.jpg`); deterministic prices and quantities
 
 ### Fixed
+- Bump product-catalog image tag to sha-6ca5e88d to deploy init_db fix (products_search_vector function); unblocks ArgoCD sync by ensuring function exists at startup
 - Move `products_search_vector` IMMUTABLE SQL function creation into `init_db()` in `database.py` so it is always present at app startup; removes function creation from PostSync job (only `CREATE INDEX IF NOT EXISTS` remains in fts-index-job.yaml); fixes 500 errors on `GET /api/products?q=...` during the ArgoCD sync window
 - `src/product_catalog/routers/products.py`: add `ORDER BY id` to list query — without it, PostgreSQL returns rows in heap order (all laptops on page 1 because they were inserted first by the seed job)
 - `.github/workflows/ci.yml`: bump pinned `shopping-cart-infra` SHA from `999f8d7` to `dd7496b` — old SHA referenced `trivy-action@0.30.0` which no longer resolves, blocking all image builds since PR #23 merged
