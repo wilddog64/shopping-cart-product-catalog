@@ -1,7 +1,7 @@
 # Retrospective — shopping-cart-product-catalog PR #28
 
 **Date:** 2026-05-24
-**PR:** #28 — merged to main (SHA `c2b5a43`)
+**PR:** #28 — already merged to main @ `c2b5a43` on 2026-05-24 (this document retrospects PR #28, not the current PR)
 **Participants:** Claude, Codex, Copilot
 
 ## What Went Well
