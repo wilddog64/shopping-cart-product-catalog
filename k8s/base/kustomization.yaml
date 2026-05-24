@@ -18,6 +18,7 @@ labels:
 
 resources:
 - serviceaccount.yaml
+- externalsecret.yaml
 - deployment.yaml
 - service.yaml
 - seed-job-configmap.yaml
