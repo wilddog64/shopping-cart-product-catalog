@@ -41,11 +41,12 @@ def list_products(
         query = query.filter(Product.category == category)
 
     if q:
-        search_vector = func.to_tsvector(
-            "english",
-            func.concat_ws(" ", Product.name, Product.description, Product.category),
+        search_vector = func.products_search_vector(
+            Product.name,
+            Product.description,
+            Product.category,
         )
-        query = query.filter(search_vector.op("@@")(func.plainto_tsquery("english", q)))
+        query = query.filter(search_vector.op("@@")(func.plainto_tsquery("pg_catalog.english", q)))
 
     total = query.count()
     items = query.order_by(Product.id).offset((page - 1) * page_size).limit(page_size).all()
