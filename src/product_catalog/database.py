@@ -4,10 +4,11 @@ from collections.abc import Generator
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine, text
+from sqlalchemy import inspect as sa_inspect
 from sqlalchemy.orm import Session, sessionmaker
 
 from .config import get_settings
-from .models import Base
+from .models import Base, Product
 
 settings = get_settings()
 
@@ -42,6 +43,7 @@ def get_db_context() -> Generator[Session, None, None]:
 
 def init_db() -> None:
     """Initialize database tables."""
+    _recreate_products_if_schema_mismatch()
     Base.metadata.create_all(bind=engine)
     with engine.begin() as conn:
         conn.execute(text("""
@@ -54,3 +56,29 @@ def init_db() -> None:
                 SELECT to_tsvector('pg_catalog.english', concat_ws(' ', name, description, category))
             $$
         """))
+
+
+def _recreate_products_if_schema_mismatch() -> None:
+    """Drop the products table in non-production when the schema is stale."""
+    inspector = sa_inspect(engine)
+    if not inspector.has_table("products"):
+        return
+
+    actual_cols = {column["name"] for column in inspector.get_columns("products")}
+    expected_cols = {column.name for column in Product.__table__.columns}
+    missing = expected_cols - actual_cols
+
+    if not missing:
+        return
+
+    if settings.environment == "production":
+        import logging
+
+        logging.getLogger(__name__).warning(
+            "products schema mismatch detected in production — skipping recreation; missing columns: %s",
+            missing,
+        )
+        return
+
+    with engine.begin() as conn:
+        conn.execute(text("DROP TABLE IF EXISTS products CASCADE"))
