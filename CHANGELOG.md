@@ -7,8 +7,10 @@
 - Python-based seed Job generating 1,000 products across 4 categories × 20 subcategories (50 each with deterministic UUIDs)
 - GIN full-text search index on `name || description || category`; wired `?q=` query param to `GET /api/products` for search results
 - Product image URLs point to MinIO via nginx proxy (`/minio/product-images/<subcategory>.jpg`); deterministic prices and quantities
+- CI integration test job with real PostgreSQL service container to catch schema regressions on every PR; runs `make test-integration` with `ENVIRONMENT=sandbox`
 
 ### Fixed
+- Recreate products table on schema mismatch in non-production environments — `init_db()` now detects old schema (INTEGER PK, `inventory_count`, no `currency`) and drops/recreates the table; logs warning and skips DROP when `ENVIRONMENT=production` to prevent accidental data loss
 - Bump product-catalog image tag to sha-6ca5e88d to deploy init_db fix (products_search_vector function); unblocks ArgoCD sync by ensuring function exists at startup
 - Move `products_search_vector` IMMUTABLE SQL function creation into `init_db()` in `database.py` so it is always present at app startup; removes function creation from PostSync job (only `CREATE INDEX IF NOT EXISTS` remains in fts-index-job.yaml); fixes 500 errors on `GET /api/products?q=...` during the ArgoCD sync window
 - `src/product_catalog/routers/products.py`: add `ORDER BY id` to list query — without it, PostgreSQL returns rows in heap order (all laptops on page 1 because they were inserted first by the seed job)
