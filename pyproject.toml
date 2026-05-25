@@ -80,3 +80,6 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = [
+    "integration: tests that require a live database (deselect with '-m not integration')",
+]

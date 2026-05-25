@@ -11,6 +11,9 @@ PYTHON := python3
 PIP := pip3
 VENV := .venv
 VENV_BIN := $(VENV)/bin
+PYTEST := $(VENV_BIN)/pytest
+RUFF_CMD := $(VENV_BIN)/ruff
+MYPY_CMD := $(VENV_BIN)/mypy
 DOCKER_IMAGE := shopping-cart-product-catalog
 DOCKER_TAG := latest
 
@@ -71,28 +74,28 @@ shell: ## Open Python shell with app context
 
 test: ## Run all tests
 	@echo "${BLUE}Running all tests...${NC}"
-	pytest tests/ -v
+	$(PYTEST) tests/ -v
 
 test-unit: ## Run unit tests only
 	@echo "${BLUE}Running unit tests...${NC}"
-	pytest tests/unit/ -v
+	$(PYTEST) tests/unit/ -v
 
 test-integration: ## Run integration tests only
 	@echo "${BLUE}Running integration tests...${NC}"
-	pytest tests/integration/ -v
+	$(PYTEST) tests/integration/ -v
 
 test-security: ## Run security tests only
 	@echo "${BLUE}Running security tests...${NC}"
-	pytest tests/unit/test_security*.py -v
+	$(PYTEST) tests/unit/test_security*.py -v
 
 test-cov: ## Run tests with coverage
 	@echo "${BLUE}Running tests with coverage...${NC}"
-	pytest tests/ --cov=product_catalog --cov-report=html --cov-report=term-missing
+	$(PYTEST) tests/ --cov=product_catalog --cov-report=html --cov-report=term-missing
 	@echo "${GREEN}Coverage report: htmlcov/index.html${NC}"
 
 test-cov-xml: ## Run tests with coverage (XML for CI)
 	@echo "${BLUE}Running tests with XML coverage...${NC}"
-	pytest tests/ --cov=product_catalog --cov-report=xml
+	$(PYTEST) tests/ --cov=product_catalog --cov-report=xml
 
 test-watch: ## Run tests in watch mode
 	@echo "${BLUE}Running tests in watch mode...${NC}"
@@ -100,17 +103,17 @@ test-watch: ## Run tests in watch mode
 
 test-failed: ## Re-run failed tests
 	@echo "${BLUE}Re-running failed tests...${NC}"
-	pytest tests/ --lf -v
+	$(PYTEST) tests/ --lf -v
 
 ##@ Code Quality
 
 lint: ## Run linter (ruff)
 	@echo "${BLUE}Running linter...${NC}"
-	ruff check src/ tests/
+	$(RUFF_CMD) check src/ tests/
 
 lint-fix: ## Fix linting issues
 	@echo "${BLUE}Fixing linting issues...${NC}"
-	ruff check src/ tests/ --fix
+	$(RUFF_CMD) check src/ tests/ --fix
 
 format: ## Format code (black + isort)
 	@echo "${BLUE}Formatting code...${NC}"
@@ -124,7 +127,7 @@ format-check: ## Check code formatting
 
 typecheck: ## Run type checker (mypy)
 	@echo "${BLUE}Running type checker...${NC}"
-	mypy src/
+	$(MYPY_CMD) src/
 
 check: lint typecheck test ## Run all checks (lint + typecheck + test)
 
