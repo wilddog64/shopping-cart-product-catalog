@@ -71,12 +71,13 @@ def _recreate_products_if_schema_mismatch() -> None:
     if not missing:
         return
 
-    if settings.environment == "production":
-        import logging
+    if settings.environment not in ("development", "sandbox", "test"):
+        import structlog
 
-        logging.getLogger(__name__).warning(
-            "products schema mismatch detected in production — skipping recreation; missing columns: %s",
-            missing,
+        structlog.get_logger(__name__).warning(
+            "products schema mismatch — skipping recreation in non-dev environment",
+            missing_columns=sorted(missing),
+            environment=settings.environment,
         )
         return
 
