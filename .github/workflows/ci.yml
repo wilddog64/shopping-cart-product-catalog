@@ -47,7 +47,45 @@ jobs:
           pip install .[dev]
 
       - name: Run tests
-        run: pytest --maxfail=1 --disable-warnings -q
+        run: pytest -m "not integration" --maxfail=1 --disable-warnings -q
+
+  integration-test:
+    name: Integration Test — Schema Self-Heal
+    needs: [lint]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: products
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/products
+      ENVIRONMENT: sandbox
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[dev]
+
+      - name: Run integration tests
+        run: pytest -m integration -v
 
   security-scan:
     name: Security Scan
