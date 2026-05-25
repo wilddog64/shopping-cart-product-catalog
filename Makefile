@@ -71,28 +71,28 @@ shell: ## Open Python shell with app context
 
 test: ## Run all tests
 	@echo "${BLUE}Running all tests...${NC}"
-	pytest tests/ -v
+	$(PYTHON) -m pytest tests/ -v
 
 test-unit: ## Run unit tests only
 	@echo "${BLUE}Running unit tests...${NC}"
-	pytest tests/unit/ -v
+	$(PYTHON) -m pytest tests/unit/ -v
 
 test-integration: ## Run integration tests only
 	@echo "${BLUE}Running integration tests...${NC}"
-	pytest tests/integration/ -v
+	$(PYTHON) -m pytest tests/integration/ -v
 
 test-security: ## Run security tests only
 	@echo "${BLUE}Running security tests...${NC}"
-	pytest tests/unit/test_security*.py -v
+	$(PYTHON) -m pytest tests/unit/test_security*.py -v
 
 test-cov: ## Run tests with coverage
 	@echo "${BLUE}Running tests with coverage...${NC}"
-	pytest tests/ --cov=product_catalog --cov-report=html --cov-report=term-missing
+	$(PYTHON) -m pytest tests/ --cov=product_catalog --cov-report=html --cov-report=term-missing
 	@echo "${GREEN}Coverage report: htmlcov/index.html${NC}"
 
 test-cov-xml: ## Run tests with coverage (XML for CI)
 	@echo "${BLUE}Running tests with XML coverage...${NC}"
-	pytest tests/ --cov=product_catalog --cov-report=xml
+	$(PYTHON) -m pytest tests/ --cov=product_catalog --cov-report=xml
 
 test-watch: ## Run tests in watch mode
 	@echo "${BLUE}Running tests in watch mode...${NC}"
@@ -100,7 +100,7 @@ test-watch: ## Run tests in watch mode
 
 test-failed: ## Re-run failed tests
 	@echo "${BLUE}Re-running failed tests...${NC}"
-	pytest tests/ --lf -v
+	$(PYTHON) -m pytest tests/ --lf -v
 
 ##@ Code Quality
 
