@@ -27,6 +27,17 @@ spec:
         runAsUser: 999
         runAsGroup: 999
         fsGroup: 999
+      initContainers:
+      - name: wait-for-service
+        image: alpine:3.19
+        command:
+          - sh
+          - -c
+          - |
+            until wget -qO- http://product-catalog.shopping-cart-apps.svc.cluster.local:8080/health; do
+              echo "Waiting for product-catalog service to create tables..."
+              sleep 2
+            done
       containers:
       - name: seed
         image: python:3.12-alpine
