@@ -12,6 +12,7 @@ metadata:
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
+  activeDeadlineSeconds: 300
   ttlSecondsAfterFinished: 300
   backoffLimit: 3
   template:
@@ -34,10 +35,16 @@ spec:
           - sh
           - -c
           - |
-            until wget -qO- http://product-catalog.shopping-cart-apps.svc.cluster.local:8080/health; do
+            until wget -qO- http://product-catalog.shopping-cart-apps.svc.cluster.local:8082/health; do
               echo "Waiting for product-catalog service to create tables..."
               sleep 2
             done
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
       containers:
       - name: seed
         image: python:3.12-alpine
