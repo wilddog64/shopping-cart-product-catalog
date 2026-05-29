@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- `.githooks/pre-push`: pre-push hook to block accidental direct pushes from feature branches to main; bypass with `ALLOW_MAIN_PUSH=1`
 - ExternalSecret resource (`k8s/base/externalsecret.yaml`) provisioning `product-catalog-secrets` from Vault — pulls DB credentials from `secret/data/postgres/products` and RabbitMQ credentials from `secret/data/rabbitmq/default`; fixes `CreateContainerConfigError` on fresh cluster deploys with ESO+Vault
 - Python-based seed Job generating 1,000 products across 4 categories × 20 subcategories (50 each with deterministic UUIDs)
 - GIN full-text search index on `name || description || category`; wired `?q=` query param to `GET /api/products` for search results
