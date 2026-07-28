@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 ### Added
-- `.github/dependabot.yml`: Dependabot version + security updates for Python dependencies, Docker base images, and GitHub Actions (weekly schedule; minor/patch grouped, majors separate) — closes the first-mile CVE gap so an advisory-flagged app dependency opens an update PR that CI builds into a clean image
+- `.github/dependabot.yml`: Dependabot scheduled version updates for Python dependencies, Docker base images, and GitHub Actions (weekly; minor/patch grouped, majors separate). Repository-level Dependabot security updates (immediate advisory-triggered PRs) are enabled separately as a repo setting — together they close the first-mile CVE gap so a flagged app dependency opens an update PR that CI builds into a clean image
 - `.githooks/pre-push`: pre-push hook to block accidental direct pushes from feature branches to main; bypass with `ALLOW_MAIN_PUSH=1`
 - ExternalSecret resource (`k8s/base/externalsecret.yaml`) provisioning `product-catalog-secrets` from Vault — pulls DB credentials from `secret/data/postgres/products` and RabbitMQ credentials from `secret/data/rabbitmq/default`; fixes `CreateContainerConfigError` on fresh cluster deploys with ESO+Vault
 - Python-based seed Job generating 1,000 products across 4 categories × 20 subcategories (50 each with deterministic UUIDs)
