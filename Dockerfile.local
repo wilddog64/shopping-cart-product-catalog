@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for Product Catalog Service (local build)
 # Stage 1: Build stage
-FROM docker.io/library/python:3.11-slim as builder
+FROM docker.io/library/python:3.14-slim as builder
 
 WORKDIR /app
 
@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir ".[rabbitmq]"
 
 # Stage 2: Runtime stage
-FROM docker.io/library/python:3.11-slim
+FROM docker.io/library/python:3.14-slim
 
 # Create non-root user for security
 RUN groupadd -r appgroup && useradd -r -g appgroup -u 1000 appuser
