@@ -15,6 +15,14 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # Python runtime major deferred — 3.14 needs deliberate testing (bleeding
+      # edge); stay on the 3.11 line. Minor/patch still flow. Revisit when the
+      # 3.12+ upgrade is scheduled.
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "library/python"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
