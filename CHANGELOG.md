@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ### Added
+- `.github/workflows/dependabot-automerge.yml`: auto-merge Dependabot minor/patch version updates and all security updates (any semver, via `alert-lookup`) with `gh pr merge --auto --squash` once required CI checks pass; **non-security** major bumps stay open for review (`dependabot/fetch-metadata` pinned to v2.3.0; `pull_request_target` scoped to `main`, job-level least-privilege permissions, gated on the PR author, no PR-head checkout)
+- `.github/dependabot.yml`: Dependabot scheduled version updates for Python dependencies, Docker base images, and GitHub Actions (weekly; minor/patch grouped, majors separate). Repository-level Dependabot security updates (immediate advisory-triggered PRs) are enabled separately as a repo setting — together they close the first-mile CVE gap so a flagged app dependency opens an update PR that CI builds into a clean image
 - `.githooks/pre-push`: pre-push hook to block accidental direct pushes from feature branches to main; bypass with `ALLOW_MAIN_PUSH=1`
 - ExternalSecret resource (`k8s/base/externalsecret.yaml`) provisioning `product-catalog-secrets` from Vault — pulls DB credentials from `secret/data/postgres/products` and RabbitMQ credentials from `secret/data/rabbitmq/default`; fixes `CreateContainerConfigError` on fresh cluster deploys with ESO+Vault
 - Python-based seed Job generating 1,000 products across 4 categories × 20 subcategories (50 each with deterministic UUIDs)
@@ -22,7 +24,7 @@
 
 ### Changed
 - Reduce deployment replicas from 2 to 1 for dev/test environment; delete HPA (`minReplicas: 2` was scaling pods back up on single-node cluster); will reintroduce in v1.1.0 EKS
-- `k8s/base/deployment.yaml`: set rolling update to `maxSurge: 0` / `maxUnavailable: 1` (recreate-style) so rollouts complete on the single-node Hostinger cluster instead of wedging with an unschedulable surge pod
+- `k8s/base/deployment.yaml`: set rolling update to `maxSurge: 0` / `maxUnavailable: 1` (recreate-style) so rollouts complete on the single-node hostinger cluster instead of wedging with an unschedulable surge pod
 
 ## [0.1.0] - 2026-03-14
 
