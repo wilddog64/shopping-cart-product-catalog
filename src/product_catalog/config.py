@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     def database_url(self) -> str:
         """Generate SQLAlchemy database URL."""
         return (
-            f"postgresql://{self.db_username}:{self.db_password}"
+            f"postgresql+psycopg2://{self.db_username}:{self.db_password}"
             f"@{self.db_host}:{self.db_port}/{self.db_name}"
         )
 
