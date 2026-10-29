@@ -36,4 +36,4 @@ configMapGenerator:
 images:
   - name: shopping-cart-product-catalog
     newName: ghcr.io/wilddog64/shopping-cart-product-catalog
-    newTag: sha-5aee1f25607e2f26db7110b2aa74406ee08c13c1
+    newTag: sha-a28de60d9b06ad7596864217320acf298c2e2b84
